@@ -5,11 +5,12 @@ import { readJsonFromGitHub, writeJsonToGitHub } from "./github";
 export interface Resource {
   url: string;
   addedAt: string;
+  explored?: boolean;
 }
 
 const resourcesFilePath = path.join(process.cwd(), "data", "resources.json");
 
-async function readResources(): Promise<Record<string, Resource[]>> {
+export async function readResources(): Promise<Record<string, Resource[]>> {
   // On Vercel, use GitHub API; locally, use filesystem
   if ((process.env.VERCEL || process.env.GITHUB_TOKEN) && process.env.GITHUB_TOKEN) {
     try {
@@ -33,7 +34,7 @@ async function readResources(): Promise<Record<string, Resource[]>> {
   }
 }
 
-async function writeResources(
+export async function writeResources(
   resources: Record<string, Resource[]>,
   message: string = "Update resources"
 ): Promise<void> {

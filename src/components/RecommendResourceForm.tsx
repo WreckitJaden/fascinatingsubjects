@@ -3,7 +3,11 @@
 import { useState } from "react";
 import { subjects } from "@/lib/subjects";
 
-export default function RecommendResourceForm() {
+interface RecommendResourceFormProps {
+  onClose?: () => void;
+}
+
+export default function RecommendResourceForm({ onClose }: RecommendResourceFormProps) {
   const [subjectId, setSubjectId] = useState<string>("");
   const [url, setUrl] = useState("");
   const [note, setNote] = useState("");
@@ -49,6 +53,10 @@ export default function RecommendResourceForm() {
       setUrl("");
       setNote("");
       setSubjectId("");
+      // Close form after successful submission
+      if (onClose) {
+        setTimeout(() => onClose(), 1500);
+      }
     } catch (error: any) {
       setMessage({ type: "error", text: error.message || "Failed to submit recommendation" });
     } finally {
