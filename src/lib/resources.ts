@@ -1,15 +1,13 @@
 import fs from "fs";
 import path from "path";
 import { readJsonFromGitHub, writeJsonToGitHub } from "./github";
+import {
+  DEFAULT_RESOURCE_CATEGORY,
+  type ResourceCategory,
+} from "./resource-categories";
 
-export const RESOURCE_CATEGORIES = [
-  { value: "general-learning", label: "General Learning" },
-  { value: "peer-reviewed-papers", label: "Peer-Reviewed Papers" },
-  { value: "research-databases", label: "Research Databases" },
-] as const;
-
-export type ResourceCategory = (typeof RESOURCE_CATEGORIES)[number]["value"];
-export const DEFAULT_RESOURCE_CATEGORY: ResourceCategory = "general-learning";
+export { RESOURCE_CATEGORIES, DEFAULT_RESOURCE_CATEGORY } from "./resource-categories";
+export type { ResourceCategory } from "./resource-categories";
 
 export interface Resource {
   url: string;

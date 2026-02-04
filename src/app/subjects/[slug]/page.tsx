@@ -5,8 +5,8 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { getSubjectBySlug } from "@/lib/subjects";
 import AddResourceForm from "@/components/AddResourceForm";
-import { RESOURCE_CATEGORIES, DEFAULT_RESOURCE_CATEGORY } from "@/lib/resources";
-import type { ResourceCategory } from "@/lib/resources";
+import { RESOURCE_CATEGORIES, DEFAULT_RESOURCE_CATEGORY } from "@/lib/resource-categories";
+import type { ResourceCategory } from "@/lib/resource-categories";
 
 interface PageProps {
   params: Promise<{ slug: string }>;

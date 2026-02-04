@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { subjects } from "@/lib/subjects";
-import { RESOURCE_CATEGORIES, DEFAULT_RESOURCE_CATEGORY } from "@/lib/resources";
-import type { ResourceCategory } from "@/lib/resources";
+import { RESOURCE_CATEGORIES, DEFAULT_RESOURCE_CATEGORY } from "@/lib/resource-categories";
+import type { ResourceCategory } from "@/lib/resource-categories";
 
 interface RecommendResourceFormProps {
   onClose?: () => void;
