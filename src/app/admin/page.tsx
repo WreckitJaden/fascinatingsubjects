@@ -206,7 +206,7 @@ export default function AdminPage() {
                         href={rec.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline"
+                        className="text-blue-600 hover:underline cursor-pointer"
                       >
                         {rec.url}
                       </a>
@@ -218,13 +218,13 @@ export default function AdminPage() {
                     <div className="flex gap-2">
                       <button
                         onClick={() => handleApproveRecommendation(rec.id)}
-                        className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700"
+                        className="px-3 py-1 bg-green-600 text-white rounded text-sm hover:bg-green-700 cursor-pointer"
                       >
                         Approve
                       </button>
                       <button
                         onClick={() => handleRejectRecommendation(rec.id)}
-                        className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+                        className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 cursor-pointer"
                       >
                         Reject
                       </button>
@@ -249,7 +249,7 @@ export default function AdminPage() {
             />
             <button
               onClick={handleAddTopic}
-              className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+              className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 cursor-pointer"
             >
               Add Topic
             </button>
@@ -266,7 +266,7 @@ export default function AdminPage() {
                   <h3 className="text-lg font-normal text-black">{subject.name}</h3>
                   <button
                     onClick={() => handleDeleteTopic(subject.id)}
-                    className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700"
+                    className="px-3 py-1 bg-red-600 text-white rounded text-sm hover:bg-red-700 cursor-pointer"
                   >
                     Delete Topic
                   </button>
@@ -286,7 +286,7 @@ export default function AdminPage() {
                     />
                     <button
                       onClick={handleAddResource}
-                      className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+                      className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 cursor-pointer"
                     >
                       Add
                     </button>
@@ -305,13 +305,13 @@ export default function AdminPage() {
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline text-sm"
+                            className="text-blue-600 hover:underline text-sm cursor-pointer"
                           >
                             {resource.url}
                           </a>
                           <button
                             onClick={() => handleDeleteResource(subject.id, resource.url)}
-                            className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700"
+                            className="px-2 py-1 bg-red-600 text-white rounded text-xs hover:bg-red-700 cursor-pointer"
                           >
                             Delete
                           </button>

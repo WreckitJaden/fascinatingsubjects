@@ -66,7 +66,7 @@ export default function SignInPage() {
           {error && <p className="text-red-600 text-sm">{error}</p>}
           <button
             type="submit"
-            className="w-full px-4 py-2 bg-black text-white rounded hover:bg-gray-800"
+            className="w-full px-4 py-2 bg-black text-white rounded hover:bg-gray-800 cursor-pointer"
           >
             Sign In
           </button>

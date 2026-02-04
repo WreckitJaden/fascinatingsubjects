@@ -11,7 +11,7 @@ export default function Home() {
               <li key={subject.id}>
                 <Link
                   href={`/subjects/${subject.slug}`}
-                  className="text-blue-600 hover:text-blue-800 hover:underline"
+                  className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                 >
                   {subject.name}
                 </Link>

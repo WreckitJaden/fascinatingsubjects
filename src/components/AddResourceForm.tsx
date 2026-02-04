@@ -72,7 +72,7 @@ export default function AddResourceForm({ subjectId }: AddResourceFormProps) {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50"
+            className="px-4 py-2 bg-black text-white rounded hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
           >
             {isSubmitting ? "Adding..." : "Add"}
           </button>

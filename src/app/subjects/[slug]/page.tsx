@@ -24,7 +24,7 @@ export default async function SubjectPage({ params }: PageProps) {
         <div className="mb-8">
           <Link
             href="/"
-            className="text-blue-600 hover:text-blue-800 hover:underline mb-4 inline-block"
+            className="text-blue-600 hover:text-blue-800 hover:underline mb-4 inline-block cursor-pointer"
           >
             ← Back
           </Link>
@@ -46,7 +46,7 @@ export default async function SubjectPage({ params }: PageProps) {
                     href={resource.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 hover:underline"
+                    className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                   >
                     {resource.url}
                   </a>
