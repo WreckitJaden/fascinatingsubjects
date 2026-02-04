@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readJsonFromGitHub, writeJsonToGitHub } from "@/lib/github";
-import { sendRecommendationNotifications } from "@/lib/notifications";
 import { getSubjectById } from "@/lib/subjects";
 import { randomUUID } from "crypto";
 
@@ -10,6 +9,7 @@ interface Recommendation {
   subjectId: number;
   subjectName: string;
   note?: string;
+  category?: string;
   submittedAt: string;
   status: "pending" | "approved" | "rejected";
 }
@@ -17,7 +17,7 @@ interface Recommendation {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { subjectId, url, note } = body;
+    const { subjectId, url, note, category } = body;
 
     if (!subjectId || !url) {
       return NextResponse.json(
@@ -58,6 +58,10 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const validCategories = ["general-learning", "peer-reviewed-papers", "research-databases"];
+    const recommendationCategory =
+      category && validCategories.includes(category) ? category : undefined;
+
     // Create new recommendation
     const recommendation: Recommendation = {
       id: randomUUID(),
@@ -65,6 +69,7 @@ export async function POST(request: NextRequest) {
       subjectId,
       subjectName: subject.name,
       note: note || undefined,
+      category: recommendationCategory,
       submittedAt: new Date().toISOString(),
       status: "pending",
     };
@@ -82,19 +87,6 @@ export async function POST(request: NextRequest) {
       updatedRecommendations,
       `Add recommendation: ${url} for ${subject.name}`
     );
-
-    // Send notifications
-    try {
-      await sendRecommendationNotifications({
-        id: recommendation.id,
-        url: recommendation.url,
-        subjectName: recommendation.subjectName,
-        note: recommendation.note,
-      });
-    } catch (error) {
-      console.error("Failed to send notifications:", error);
-      // Don't fail the request if notifications fail
-    }
 
     return NextResponse.json({ success: true, id: recommendation.id });
   } catch (error: any) {

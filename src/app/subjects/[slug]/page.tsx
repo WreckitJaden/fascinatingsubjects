@@ -5,6 +5,8 @@ import { useSession } from "next-auth/react";
 import { useState, useEffect } from "react";
 import { getSubjectBySlug } from "@/lib/subjects";
 import AddResourceForm from "@/components/AddResourceForm";
+import { RESOURCE_CATEGORIES, DEFAULT_RESOURCE_CATEGORY } from "@/lib/resources";
+import type { ResourceCategory } from "@/lib/resources";
 
 interface PageProps {
   params: Promise<{ slug: string }>;
@@ -14,6 +16,7 @@ interface Resource {
   url: string;
   addedAt: string;
   explored?: boolean;
+  category?: ResourceCategory;
 }
 
 export default function SubjectPage({ params }: PageProps) {
@@ -223,56 +226,82 @@ export default function SubjectPage({ params }: PageProps) {
           {resources.length === 0 ? (
             <p className="text-gray-600">No resources yet.</p>
           ) : (
-            <ul className="space-y-2">
-              {resources.map((resource, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  {isEditMode && (
-                    <input
-                      type="checkbox"
-                      checked={selectedUrls.has(resource.url)}
-                      onChange={() => handleToggleSelect(resource.url)}
-                      className="cursor-pointer"
-                    />
-                  )}
-                  <a
-                    href={resource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-                  >
-                    {resource.url}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-8">
+              {RESOURCE_CATEGORIES.map((cat) => {
+                const inCategory = resources.filter(
+                  (r) => (r.category || DEFAULT_RESOURCE_CATEGORY) === cat.value
+                );
+                if (inCategory.length === 0) return null;
+                return (
+                  <div key={cat.value}>
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">{cat.label}</h3>
+                    <ul className="space-y-2">
+                      {inCategory.map((resource, index) => (
+                        <li key={`${resource.url}-${index}`} className="flex items-center gap-2">
+                          {isEditMode && (
+                            <input
+                              type="checkbox"
+                              checked={selectedUrls.has(resource.url)}
+                              onChange={() => handleToggleSelect(resource.url)}
+                              className="cursor-pointer"
+                            />
+                          )}
+                          <a
+                            href={resource.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                          >
+                            {resource.url}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
           )}
         </div>
 
         {exploredResources.length > 0 && (
           <div>
             <h2 className="text-xl font-normal text-black mb-4">Explored</h2>
-            <ul className="space-y-2">
-              {exploredResources.map((resource, index) => (
-                <li key={index} className="flex items-center gap-2">
-                  {isEditMode && (
-                    <input
-                      type="checkbox"
-                      checked={selectedUrls.has(resource.url)}
-                      onChange={() => handleToggleSelect(resource.url)}
-                      className="cursor-pointer"
-                    />
-                  )}
-                  <a
-                    href={resource.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer line-through text-gray-500"
-                  >
-                    {resource.url}
-                  </a>
-                </li>
-              ))}
-            </ul>
+            <div className="space-y-8">
+              {RESOURCE_CATEGORIES.map((cat) => {
+                const inCategory = exploredResources.filter(
+                  (r) => (r.category || DEFAULT_RESOURCE_CATEGORY) === cat.value
+                );
+                if (inCategory.length === 0) return null;
+                return (
+                  <div key={cat.value}>
+                    <h3 className="text-lg font-medium text-gray-800 mb-2">{cat.label}</h3>
+                    <ul className="space-y-2">
+                      {inCategory.map((resource, index) => (
+                        <li key={`${resource.url}-${index}`} className="flex items-center gap-2">
+                          {isEditMode && (
+                            <input
+                              type="checkbox"
+                              checked={selectedUrls.has(resource.url)}
+                              onChange={() => handleToggleSelect(resource.url)}
+                              className="cursor-pointer"
+                            />
+                          )}
+                          <a
+                            href={resource.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer line-through text-gray-500"
+                          >
+                            {resource.url}
+                          </a>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                );
+              })}
+            </div>
           </div>
         )}
       </div>

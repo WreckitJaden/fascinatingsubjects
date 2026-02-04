@@ -5,12 +5,19 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+const CATEGORY_LABELS: Record<string, string> = {
+  "general-learning": "General Learning",
+  "peer-reviewed-papers": "Peer-Reviewed Papers",
+  "research-databases": "Research Databases",
+};
+
 interface Recommendation {
   id: string;
   url: string;
   subjectId: number;
   subjectName: string;
   note?: string;
+  category?: string;
   submittedAt: string;
   status: "pending" | "approved" | "rejected";
 }
@@ -126,6 +133,11 @@ export default function RecommendationsPage() {
                         {rec.url}
                       </a>
                       <p className="text-sm text-gray-600 mt-1">Topic: {rec.subjectName}</p>
+                      {rec.category && (
+                        <p className="text-sm text-gray-600 mt-1">
+                          Category: {CATEGORY_LABELS[rec.category] ?? rec.category}
+                        </p>
+                      )}
                       {rec.note && (
                         <p className="text-sm text-gray-600 mt-1">Note: {rec.note}</p>
                       )}
@@ -172,6 +184,11 @@ export default function RecommendationsPage() {
                     {rec.url}
                   </a>
                   <p className="text-sm text-gray-600 mt-1">Topic: {rec.subjectName}</p>
+                  {rec.category && (
+                    <p className="text-sm text-gray-600 mt-1">
+                      Category: {CATEGORY_LABELS[rec.category] ?? rec.category}
+                    </p>
+                  )}
                 </div>
               ))}
             </div>

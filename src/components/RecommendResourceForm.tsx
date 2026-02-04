@@ -2,6 +2,8 @@
 
 import { useState } from "react";
 import { subjects } from "@/lib/subjects";
+import { RESOURCE_CATEGORIES, DEFAULT_RESOURCE_CATEGORY } from "@/lib/resources";
+import type { ResourceCategory } from "@/lib/resources";
 
 interface RecommendResourceFormProps {
   onClose?: () => void;
@@ -11,6 +13,7 @@ export default function RecommendResourceForm({ onClose }: RecommendResourceForm
   const [subjectId, setSubjectId] = useState<string>("");
   const [url, setUrl] = useState("");
   const [note, setNote] = useState("");
+  const [category, setCategory] = useState<ResourceCategory | "">("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
     null
@@ -37,6 +40,7 @@ export default function RecommendResourceForm({ onClose }: RecommendResourceForm
           subjectId: parseInt(subjectId),
           url,
           note: note || undefined,
+          category: category || undefined,
         }),
       });
 
@@ -53,6 +57,7 @@ export default function RecommendResourceForm({ onClose }: RecommendResourceForm
       setUrl("");
       setNote("");
       setSubjectId("");
+      setCategory("");
       // Close form after successful submission
       if (onClose) {
         setTimeout(() => onClose(), 1500);
@@ -101,6 +106,25 @@ export default function RecommendResourceForm({ onClose }: RecommendResourceForm
             className="w-full px-3 py-2 border border-gray-300 rounded text-black"
             required
           />
+        </div>
+
+        <div>
+          <label htmlFor="category" className="block text-sm font-medium text-gray-700 mb-1">
+            Category (optional)
+          </label>
+          <select
+            id="category"
+            value={category}
+            onChange={(e) => setCategory(e.target.value as ResourceCategory | "")}
+            className="w-full px-3 py-2 border border-gray-300 rounded text-black"
+          >
+            <option value="">No preference</option>
+            {RESOURCE_CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>

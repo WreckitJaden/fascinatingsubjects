@@ -2,10 +2,20 @@ import fs from "fs";
 import path from "path";
 import { readJsonFromGitHub, writeJsonToGitHub } from "./github";
 
+export const RESOURCE_CATEGORIES = [
+  { value: "general-learning", label: "General Learning" },
+  { value: "peer-reviewed-papers", label: "Peer-Reviewed Papers" },
+  { value: "research-databases", label: "Research Databases" },
+] as const;
+
+export type ResourceCategory = (typeof RESOURCE_CATEGORIES)[number]["value"];
+export const DEFAULT_RESOURCE_CATEGORY: ResourceCategory = "general-learning";
+
 export interface Resource {
   url: string;
   addedAt: string;
   explored?: boolean;
+  category?: ResourceCategory;
 }
 
 const resourcesFilePath = path.join(process.cwd(), "data", "resources.json");
@@ -73,7 +83,8 @@ export async function getResourcesForSubject(subjectId: number): Promise<Resourc
 
 export async function addResourceToSubject(
   subjectId: number,
-  url: string
+  url: string,
+  category: ResourceCategory = DEFAULT_RESOURCE_CATEGORY
 ): Promise<void> {
   const resources = await readResources();
   const subjectKey = subjectId.toString();
@@ -97,6 +108,7 @@ export async function addResourceToSubject(
   resources[subjectKey].push({
     url,
     addedAt: new Date().toISOString(),
+    category,
   });
 
   await writeResources(resources, `Add resource to subject ${subjectId}: ${url}`);

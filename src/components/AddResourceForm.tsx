@@ -2,7 +2,8 @@
 
 import { useState } from "react";
 import { useSession } from "next-auth/react";
-import { signIn as nextAuthSignIn } from "next-auth/react";
+import { RESOURCE_CATEGORIES, DEFAULT_RESOURCE_CATEGORY } from "@/lib/resources";
+import type { ResourceCategory } from "@/lib/resources";
 
 interface AddResourceFormProps {
   subjectId: number;
@@ -11,6 +12,7 @@ interface AddResourceFormProps {
 export default function AddResourceForm({ subjectId }: AddResourceFormProps) {
   const { data: session, status } = useSession();
   const [url, setUrl] = useState("");
+  const [category, setCategory] = useState<ResourceCategory>(DEFAULT_RESOURCE_CATEGORY);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(
     null
@@ -35,7 +37,7 @@ export default function AddResourceForm({ subjectId }: AddResourceFormProps) {
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ url }),
+        body: JSON.stringify({ url, category }),
       });
 
       const data = await response.json();
@@ -46,6 +48,7 @@ export default function AddResourceForm({ subjectId }: AddResourceFormProps) {
 
       setMessage({ type: "success", text: "Resource added successfully!" });
       setUrl("");
+      setCategory(DEFAULT_RESOURCE_CATEGORY);
       // Refresh the page to show the new resource
       setTimeout(() => {
         window.location.reload();
@@ -60,7 +63,7 @@ export default function AddResourceForm({ subjectId }: AddResourceFormProps) {
   return (
     <div className="mb-8">
       <form onSubmit={handleSubmit} className="space-y-3">
-        <div className="flex gap-2">
+        <div className="flex flex-col sm:flex-row gap-3">
           <input
             type="url"
             value={url}
@@ -69,6 +72,18 @@ export default function AddResourceForm({ subjectId }: AddResourceFormProps) {
             className="flex-1 px-3 py-2 border border-gray-300 rounded text-black"
             required
           />
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as ResourceCategory)}
+            className="px-3 py-2 border border-gray-300 rounded text-black min-w-[180px]"
+            aria-label="Category"
+          >
+            {RESOURCE_CATEGORIES.map((c) => (
+              <option key={c.value} value={c.value}>
+                {c.label}
+              </option>
+            ))}
+          </select>
           <button
             type="submit"
             disabled={isSubmitting}

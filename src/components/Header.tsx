@@ -2,12 +2,32 @@
 
 import { useSession, signIn, signOut } from "next-auth/react";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import RecommendResourceForm from "./RecommendResourceForm";
 
 export default function Header() {
   const { data: session, status } = useSession();
   const [showRecommendForm, setShowRecommendForm] = useState(false);
+  const [pendingCount, setPendingCount] = useState<number>(0);
+
+  useEffect(() => {
+    if (!session) {
+      setPendingCount(0);
+      return;
+    }
+    async function fetchPendingCount() {
+      try {
+        const res = await fetch("/api/admin/recommendations");
+        if (res.ok) {
+          const data = await res.json();
+          setPendingCount(data.pending?.length ?? 0);
+        }
+      } catch {
+        setPendingCount(0);
+      }
+    }
+    fetchPendingCount();
+  }, [session]);
 
   return (
     <>
@@ -32,7 +52,9 @@ export default function Header() {
                     href="/recommendations"
                     className="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                   >
-                    Recommendations
+                    {pendingCount > 0
+                      ? `Recommendations (${pendingCount})`
+                      : "Recommendations"}
                   </Link>
                   <Link
                     href="/admin"

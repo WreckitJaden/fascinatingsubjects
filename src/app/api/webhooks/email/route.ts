@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readJsonFromGitHub, writeJsonToGitHub } from "@/lib/github";
+import { DEFAULT_RESOURCE_CATEGORY } from "@/lib/resources";
+import type { ResourceCategory } from "@/lib/resources";
 
 interface Recommendation {
   id: string;
@@ -7,6 +9,7 @@ interface Recommendation {
   subjectId: number;
   subjectName: string;
   note?: string;
+  category?: string;
   submittedAt: string;
   status: "pending" | "approved" | "rejected";
 }
@@ -86,9 +89,9 @@ export async function POST(request: NextRequest) {
     };
 
     // Read resources
-    const resources = await readJsonFromGitHub<Record<string, Array<{ url: string; addedAt: string }>>>(
-      "data/resources.json"
-    );
+    const resources = await readJsonFromGitHub<
+      Record<string, Array<{ url: string; addedAt: string; category?: ResourceCategory }>>
+    >("data/resources.json");
 
     // Add to resources
     const subjectKey = recommendation.subjectId.toString();
@@ -96,11 +99,18 @@ export async function POST(request: NextRequest) {
       resources[subjectKey] = [];
     }
 
+    const validCategories: ResourceCategory[] = ["general-learning", "peer-reviewed-papers", "research-databases"];
+    const resourceCategory: ResourceCategory =
+      recommendation.category && validCategories.includes(recommendation.category as ResourceCategory)
+        ? (recommendation.category as ResourceCategory)
+        : DEFAULT_RESOURCE_CATEGORY;
+
     // Check if already exists
     if (!resources[subjectKey].some((r) => r.url === recommendation.url)) {
       resources[subjectKey].push({
         url: recommendation.url,
         addedAt: new Date().toISOString(),
+        category: resourceCategory,
       });
 
       // Save resources

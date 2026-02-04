@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/api/auth/[...nextauth]/route";
-import { getResourcesForSubject, addResourceToSubject } from "@/lib/resources";
+import { getResourcesForSubject, addResourceToSubject, DEFAULT_RESOURCE_CATEGORY } from "@/lib/resources";
+import type { ResourceCategory } from "@/lib/resources";
 import { readJsonFromGitHub, writeJsonToGitHub } from "@/lib/github";
 
 export async function GET(
@@ -44,19 +45,23 @@ export async function POST(
 
   try {
     const body = await request.json();
-    const { url } = body;
+    const { url, category } = body;
 
     if (!url || typeof url !== "string") {
       return NextResponse.json({ error: "URL is required" }, { status: 400 });
     }
 
+    const validCategories = ["general-learning", "peer-reviewed-papers", "research-databases"];
+    const resourceCategory: ResourceCategory =
+      category && validCategories.includes(category) ? category : DEFAULT_RESOURCE_CATEGORY;
+
     try {
-      await addResourceToSubject(subjectIdNum, url);
+      await addResourceToSubject(subjectIdNum, url, resourceCategory);
       return NextResponse.json({ success: true });
     } catch (error: any) {
       // If GitHub API fails, try direct GitHub write
       if (error.message?.includes("GitHub") || process.env.VERCEL) {
-        const resources = await readJsonFromGitHub<Record<string, Array<{ url: string; addedAt: string }>>>(
+        const resources = await readJsonFromGitHub<Record<string, Array<{ url: string; addedAt: string; category?: ResourceCategory }>>>(
           "data/resources.json"
         );
         const subjectKey = subjectIdNum.toString();
@@ -67,6 +72,7 @@ export async function POST(
           resources[subjectKey].push({
             url,
             addedAt: new Date().toISOString(),
+            category: resourceCategory,
           });
           await writeJsonToGitHub(
             "data/resources.json",
