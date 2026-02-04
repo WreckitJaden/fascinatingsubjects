@@ -118,7 +118,7 @@ export default function RecommendResourceForm({ onClose }: RecommendResourceForm
             onChange={(e) => setCategory(e.target.value as ResourceCategory | "")}
             className="w-full px-3 py-2 border border-gray-300 rounded text-black"
           >
-            <option value="">No preference</option>
+            <option value="">Not sure</option>
             {RESOURCE_CATEGORIES.map((c) => (
               <option key={c.value} value={c.value}>
                 {c.label}
