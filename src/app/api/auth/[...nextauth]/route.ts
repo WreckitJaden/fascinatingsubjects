@@ -2,6 +2,13 @@ import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
 import { compare } from "bcryptjs";
 
+if (!process.env.NEXTAUTH_SECRET) {
+  console.warn(
+    "NEXTAUTH_SECRET is not set. Authentication may not work properly. " +
+    "Please set NEXTAUTH_SECRET in your environment variables."
+  );
+}
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
@@ -41,7 +48,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
   session: {
     strategy: "jwt",
   },
-  secret: process.env.NEXTAUTH_SECRET,
+  secret: process.env.NEXTAUTH_SECRET || "fallback-secret-for-development-only",
 });
 
 export const { GET, POST } = handlers;

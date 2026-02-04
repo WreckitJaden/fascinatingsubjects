@@ -49,8 +49,12 @@ Recommendation ID: ${recommendation.id}
   `.trim();
 
   try {
+    // Use Resend's default domain for now (onboarding@resend.dev)
+    // You can change this to your custom domain after verifying it in Resend
+    const fromEmail = process.env.RESEND_FROM_EMAIL || "onboarding@resend.dev";
+    
     await resend.emails.send({
-      from: "notifications@topicstostudy.com", // Update with your verified domain
+      from: fromEmail,
       to: ADMIN_EMAIL,
       subject,
       text: emailBody,

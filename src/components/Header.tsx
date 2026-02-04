@@ -27,6 +27,12 @@ export default function Header() {
               {status === "loading" ? null : session ? (
                 <>
                   <Link
+                    href="/recommendations"
+                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                  >
+                    Recommendations
+                  </Link>
+                  <Link
                     href="/admin"
                     className="text-sm text-gray-600 hover:text-gray-800 hover:underline cursor-pointer"
                   >

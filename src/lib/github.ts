@@ -1,8 +1,12 @@
 import { Octokit } from "@octokit/rest";
 
-const octokit = new Octokit({
-  auth: process.env.GITHUB_TOKEN,
-});
+let octokit: Octokit | null = null;
+
+if (process.env.GITHUB_TOKEN) {
+  octokit = new Octokit({
+    auth: process.env.GITHUB_TOKEN,
+  });
+}
 
 const OWNER = "WreckitJaden";
 const REPO = "fascinatingsubjects";
@@ -18,6 +22,10 @@ export interface GitHubFile {
  * Read a file from GitHub repository
  */
 export async function readFileFromGitHub(path: string): Promise<string> {
+  if (!octokit) {
+    throw new Error("GITHUB_TOKEN is not configured");
+  }
+
   try {
     const response = await octokit.repos.getContent({
       owner: OWNER,
@@ -44,6 +52,10 @@ export async function readFileFromGitHub(path: string): Promise<string> {
  * Get the SHA of a file (needed for updates)
  */
 async function getFileSha(path: string): Promise<string | null> {
+  if (!octokit) {
+    throw new Error("GITHUB_TOKEN is not configured");
+  }
+
   try {
     const response = await octokit.repos.getContent({
       owner: OWNER,
@@ -72,6 +84,10 @@ export async function writeFileToGitHub(
   content: string,
   message: string
 ): Promise<void> {
+  if (!octokit) {
+    throw new Error("GITHUB_TOKEN is not configured");
+  }
+
   const sha = await getFileSha(path);
 
   const fileContent = Buffer.from(content).toString("base64");

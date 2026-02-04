@@ -11,12 +11,12 @@ const resourcesFilePath = path.join(process.cwd(), "data", "resources.json");
 
 async function readResources(): Promise<Record<string, Resource[]>> {
   // On Vercel, use GitHub API; locally, use filesystem
-  if (process.env.VERCEL || process.env.GITHUB_TOKEN) {
+  if ((process.env.VERCEL || process.env.GITHUB_TOKEN) && process.env.GITHUB_TOKEN) {
     try {
       return await readJsonFromGitHub<Record<string, Resource[]>>("data/resources.json");
     } catch (error) {
       console.error("Error reading resources from GitHub:", error);
-      return {};
+      // Fall through to filesystem fallback
     }
   }
 
@@ -38,13 +38,17 @@ async function writeResources(
   message: string = "Update resources"
 ): Promise<void> {
   // On Vercel, use GitHub API; locally, use filesystem
-  if (process.env.VERCEL || process.env.GITHUB_TOKEN) {
+  if ((process.env.VERCEL || process.env.GITHUB_TOKEN) && process.env.GITHUB_TOKEN) {
     try {
       await writeJsonToGitHub("data/resources.json", resources, message);
       return;
     } catch (error) {
       console.error("Error writing resources to GitHub:", error);
-      throw error;
+      // If on Vercel and GitHub fails, we can't use filesystem
+      if (process.env.VERCEL) {
+        throw new Error("GITHUB_TOKEN is required on Vercel. Please set it in environment variables.");
+      }
+      // Fall through to filesystem fallback for local
     }
   }
 
