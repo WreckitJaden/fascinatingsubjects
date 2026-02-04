@@ -18,12 +18,14 @@ export default function Header() {
               Topics to Study
             </Link>
             <div className="flex items-center gap-4">
-              <button
-                onClick={() => setShowRecommendForm(!showRecommendForm)}
-                className="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-              >
-                Recommend a Resource
-              </button>
+              {!session && (
+                <button
+                  onClick={() => setShowRecommendForm(!showRecommendForm)}
+                  className="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                >
+                  Recommend a Resource
+                </button>
+              )}
               {status === "loading" ? null : session ? (
                 <>
                   <Link
