@@ -23,6 +23,14 @@ function readResources(): Record<string, Resource[]> {
 
 function writeResources(resources: Record<string, Resource[]>): void {
   try {
+    // Check if we're on Vercel (read-only filesystem)
+    if (process.env.VERCEL) {
+      throw new Error(
+        "Cannot write to filesystem on Vercel. Resources can only be added locally. " +
+        "Push changes to git and redeploy, or implement GitHub API integration."
+      );
+    }
+    
     const dir = path.dirname(resourcesFilePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });

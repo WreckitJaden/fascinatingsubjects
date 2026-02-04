@@ -1,6 +1,6 @@
 import NextAuth from "next-auth";
 import Credentials from "next-auth/providers/credentials";
-import argon2 from "argon2";
+import { compare } from "bcryptjs";
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
@@ -22,7 +22,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         }
 
         try {
-          const isValid = await argon2.verify(hashedPassword, credentials.password);
+          const isValid = await compare(credentials.password, hashedPassword);
           if (!isValid) {
             return null;
           }
