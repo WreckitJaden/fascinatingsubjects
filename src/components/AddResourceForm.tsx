@@ -21,16 +21,7 @@ export default function AddResourceForm({ subjectId }: AddResourceFormProps) {
   }
 
   if (!session) {
-    return (
-      <div className="mb-6">
-        <button
-          onClick={() => nextAuthSignIn()}
-          className="text-blue-600 hover:text-blue-800 hover:underline"
-        >
-          Sign in to add resources
-        </button>
-      </div>
-    );
+    return null;
   }
 
   const handleSubmit = async (e: React.FormEvent) => {

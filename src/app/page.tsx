@@ -5,9 +5,6 @@ export default function Home() {
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-4xl px-6 py-12">
-        <div className="mb-8">
-          <h1 className="text-2xl font-normal text-black">Topics to Study</h1>
-        </div>
         <nav>
           <ul className="space-y-1">
             {subjects.map((subject) => (

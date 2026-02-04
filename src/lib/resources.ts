@@ -1,5 +1,6 @@
 import fs from "fs";
 import path from "path";
+import { readJsonFromGitHub, writeJsonToGitHub } from "./github";
 
 export interface Resource {
   url: string;
@@ -8,7 +9,18 @@ export interface Resource {
 
 const resourcesFilePath = path.join(process.cwd(), "data", "resources.json");
 
-function readResources(): Record<string, Resource[]> {
+async function readResources(): Promise<Record<string, Resource[]>> {
+  // On Vercel, use GitHub API; locally, use filesystem
+  if (process.env.VERCEL || process.env.GITHUB_TOKEN) {
+    try {
+      return await readJsonFromGitHub<Record<string, Resource[]>>("data/resources.json");
+    } catch (error) {
+      console.error("Error reading resources from GitHub:", error);
+      return {};
+    }
+  }
+
+  // Local filesystem fallback
   try {
     if (!fs.existsSync(resourcesFilePath)) {
       return {};
@@ -21,16 +33,23 @@ function readResources(): Record<string, Resource[]> {
   }
 }
 
-function writeResources(resources: Record<string, Resource[]>): void {
-  try {
-    // Check if we're on Vercel (read-only filesystem)
-    if (process.env.VERCEL) {
-      throw new Error(
-        "Cannot write to filesystem on Vercel. Resources can only be added locally. " +
-        "Push changes to git and redeploy, or implement GitHub API integration."
-      );
+async function writeResources(
+  resources: Record<string, Resource[]>,
+  message: string = "Update resources"
+): Promise<void> {
+  // On Vercel, use GitHub API; locally, use filesystem
+  if (process.env.VERCEL || process.env.GITHUB_TOKEN) {
+    try {
+      await writeJsonToGitHub("data/resources.json", resources, message);
+      return;
+    } catch (error) {
+      console.error("Error writing resources to GitHub:", error);
+      throw error;
     }
-    
+  }
+
+  // Local filesystem fallback
+  try {
     const dir = path.dirname(resourcesFilePath);
     if (!fs.existsSync(dir)) {
       fs.mkdirSync(dir, { recursive: true });
@@ -43,7 +62,7 @@ function writeResources(resources: Record<string, Resource[]>): void {
 }
 
 export async function getResourcesForSubject(subjectId: number): Promise<Resource[]> {
-  const resources = readResources();
+  const resources = await readResources();
   return resources[subjectId.toString()] || [];
 }
 
@@ -51,7 +70,7 @@ export async function addResourceToSubject(
   subjectId: number,
   url: string
 ): Promise<void> {
-  const resources = readResources();
+  const resources = await readResources();
   const subjectKey = subjectId.toString();
 
   if (!resources[subjectKey]) {
@@ -75,5 +94,5 @@ export async function addResourceToSubject(
     addedAt: new Date().toISOString(),
   });
 
-  writeResources(resources);
+  await writeResources(resources, `Add resource to subject ${subjectId}: ${url}`);
 }
