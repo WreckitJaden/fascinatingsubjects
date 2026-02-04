@@ -168,7 +168,12 @@ export default function SubjectPage({ params }: PageProps) {
             ← Back
           </Link>
           <div className="flex items-center justify-between mt-4">
-            <h1 className="text-2xl font-normal text-black">{subject.name}</h1>
+            <div>
+              <h1 className="text-2xl font-normal text-black">{subject.name}</h1>
+              {subject.description && (
+                <p className="text-sm text-gray-500 mt-2">{subject.description}</p>
+              )}
+            </div>
             {session && (
               <div className="flex gap-4">
                 <button

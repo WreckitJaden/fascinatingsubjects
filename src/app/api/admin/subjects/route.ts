@@ -6,6 +6,7 @@ interface Subject {
   id: number;
   name: string;
   slug: string;
+  description?: string;
 }
 
 function slugify(text: string): string {
@@ -43,12 +44,13 @@ export async function POST(request: NextRequest) {
 
     // Extract existing subjects
     const existingSubjects: Subject[] = [];
-    const subjectMatches = fileContent.matchAll(/\{\s*id:\s*(\d+),\s*name:\s*"([^"]+)",\s*slug:\s*"([^"]+)"\s*\}/g);
+    const subjectMatches = fileContent.matchAll(/\{\s*id:\s*(\d+),\s*name:\s*"([^"]+)",\s*slug:\s*"([^"]+)"(?:,\s*description:\s*"([^"]+)")?\s*\}/g);
     for (const match of subjectMatches) {
       existingSubjects.push({
         id: parseInt(match[1]),
         name: match[2],
         slug: match[3],
+        description: match[4] || undefined,
       });
     }
 
@@ -74,13 +76,17 @@ export async function POST(request: NextRequest) {
 
     // Reconstruct the file
     const subjectsArray = [...existingSubjects, newSubject]
-      .map((s) => `  { id: ${s.id}, name: "${s.name}", slug: "${s.slug}" }`)
+      .map((s) => {
+        const desc = s.description ? `, description: "${s.description}"` : "";
+        return `  { id: ${s.id}, name: "${s.name}", slug: "${s.slug}"${desc} }`;
+      })
       .join(",\n");
 
     const newFileContent = `export interface Subject {
   id: number;
   name: string;
   slug: string;
+  description?: string;
 }
 
 export const subjects: Subject[] = [
