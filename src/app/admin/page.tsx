@@ -201,12 +201,13 @@ export default function AdminPage() {
               {recommendations.pending?.map((rec) => (
                 <div key={rec.id} className="border border-gray-200 rounded p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <a
                         href={rec.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:underline cursor-pointer"
+                        title={rec.url}
+                        className="block truncate text-blue-600 hover:underline cursor-pointer"
                       >
                         {rec.url}
                       </a>
@@ -299,12 +300,13 @@ export default function AdminPage() {
                   ) : (
                     <ul className="space-y-1">
                       {resources[subject.id]?.map((resource, index) => (
-                        <li key={index} className="flex justify-between items-center">
+                        <li key={index} className="flex justify-between items-center gap-2">
                           <a
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:underline text-sm cursor-pointer"
+                            title={resource.url}
+                            className="min-w-0 truncate text-blue-600 hover:underline text-sm cursor-pointer"
                           >
                             {resource.url}
                           </a>

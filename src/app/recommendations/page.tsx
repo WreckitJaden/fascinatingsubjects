@@ -123,12 +123,13 @@ export default function RecommendationsPage() {
               {recommendations.pending?.map((rec) => (
                 <div key={rec.id} className="border border-gray-200 rounded p-4">
                   <div className="flex justify-between items-start mb-2">
-                    <div className="flex-1">
+                    <div className="min-w-0 flex-1">
                       <a
                         href={rec.url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                        title={rec.url}
+                        className="block truncate text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                       >
                         {rec.url}
                       </a>
@@ -174,12 +175,13 @@ export default function RecommendationsPage() {
             </h2>
             <div className="space-y-2">
               {recommendations.approved.map((rec) => (
-                <div key={rec.id} className="border border-gray-200 rounded p-3">
+                <div key={rec.id} className="border border-gray-200 rounded p-3 min-w-0">
                   <a
                     href={rec.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                    title={rec.url}
+                    className="block truncate text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                   >
                     {rec.url}
                   </a>
@@ -203,12 +205,13 @@ export default function RecommendationsPage() {
             </h2>
             <div className="space-y-2">
               {recommendations.rejected.map((rec) => (
-                <div key={rec.id} className="border border-gray-200 rounded p-3">
+                <div key={rec.id} className="border border-gray-200 rounded p-3 min-w-0">
                   <a
                     href={rec.url}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                    title={rec.url}
+                    className="block truncate text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                   >
                     {rec.url}
                   </a>

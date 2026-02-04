@@ -249,7 +249,8 @@ export default function SubjectPage({ params }: PageProps) {
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                            title={resource.url}
+                            className="min-w-0 truncate text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                           >
                             {resource.url}
                           </a>
@@ -290,7 +291,8 @@ export default function SubjectPage({ params }: PageProps) {
                             href={resource.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer line-through text-gray-500"
+                            title={resource.url}
+                            className="min-w-0 truncate text-blue-600 hover:text-blue-800 hover:underline cursor-pointer line-through text-gray-500"
                           >
                             {resource.url}
                           </a>
