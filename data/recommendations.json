@@ -1,14 +1,5 @@
 {
-  "pending": [
-    {
-      "id": "2043a529-ebe7-46a4-b98f-24bcbb80fe3b",
-      "url": "https://www.theproductfolks.com/product-teardowns",
-      "subjectId": 3,
-      "subjectName": "Cells",
-      "submittedAt": "2026-02-04T17:05:09.036Z",
-      "status": "pending"
-    }
-  ],
+  "pending": [],
   "approved": [],
   "rejected": [
     {
@@ -18,6 +9,14 @@
       "subjectName": "Psychology",
       "note": "Gg",
       "submittedAt": "2026-02-04T03:29:12.052Z",
+      "status": "rejected"
+    },
+    {
+      "id": "2043a529-ebe7-46a4-b98f-24bcbb80fe3b",
+      "url": "https://www.theproductfolks.com/product-teardowns",
+      "subjectId": 3,
+      "subjectName": "Cells",
+      "submittedAt": "2026-02-04T17:05:09.036Z",
       "status": "rejected"
     }
   ]
