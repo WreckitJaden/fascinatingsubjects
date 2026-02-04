@@ -2,15 +2,16 @@
 
 import { signIn as nextAuthSignIn } from "next-auth/react";
 import { useState } from "react";
+import Link from "next/link";
 
 export default function SignInPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [error, setError] = useState(false);
 
   const handlePasswordSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
+    setError(false);
 
     try {
       const result = await nextAuthSignIn("credentials", {
@@ -19,14 +20,39 @@ export default function SignInPage() {
       });
 
       if (result?.error) {
-        setError("Invalid password");
+        setError(true);
       } else if (result?.ok) {
         window.location.href = "/";
       }
     } catch (err) {
-      setError("Invalid password");
+      setError(true);
     }
   };
+
+  if (error) {
+    return (
+      <div className="min-h-screen bg-red-950 flex flex-col items-center justify-center px-6 text-center">
+        <div className="max-w-md w-full space-y-8">
+          <p className="text-red-100 text-xl font-semibold tracking-tight">
+            What are you doing?
+          </p>
+          <p className="text-red-200/90 text-lg">
+            Nothing to see here. Out of bounds. Run along.
+          </p>
+          <Link
+            href="/auth/signin"
+            onClick={(e) => {
+              e.preventDefault();
+              setError(false);
+            }}
+            className="inline-block px-6 py-3 border-2 border-red-700 text-red-100 rounded font-medium hover:bg-red-900/50 transition-colors"
+          >
+            Try again
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white min-h-screen flex items-center justify-center">
@@ -63,7 +89,6 @@ export default function SignInPage() {
               required
             />
           </div>
-          {error && <p className="text-red-600 text-sm">{error}</p>}
           <button
             type="submit"
             className="w-full px-4 py-2 bg-black text-white rounded hover:bg-gray-800 cursor-pointer"
