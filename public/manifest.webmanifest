@@ -1,0 +1,18 @@
+{
+  "name": "Topics to Study",
+  "short_name": "Topics to Study",
+  "description": "A personal curriculum of subjects to study",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#DA2048",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/curriculumlogo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
