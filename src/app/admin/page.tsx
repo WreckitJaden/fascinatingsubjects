@@ -256,9 +256,9 @@ export default function AdminPage() {
           </div>
         </section>
 
-        {/* Topics and Resources Section */}
+        {/* Topics Section */}
         <section>
-          <h2 className="text-xl font-normal text-black mb-4">Topics & Resources</h2>
+          <h2 className="text-xl font-normal text-black mb-4">Topics</h2>
           <div className="space-y-8">
             {subjects.map((subject) => (
               <div key={subject.id} className="border border-gray-200 rounded p-4">
@@ -294,7 +294,6 @@ export default function AdminPage() {
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-medium text-gray-700 mb-2">Resources</h4>
                   {resources[subject.id]?.length === 0 ? (
                     <p className="text-gray-600 text-sm">No resources</p>
                   ) : (

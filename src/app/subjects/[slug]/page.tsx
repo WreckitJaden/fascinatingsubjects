@@ -222,7 +222,6 @@ export default function SubjectPage({ params }: PageProps) {
         )}
 
         <div className="mb-8">
-          <h2 className="text-xl font-normal text-black mb-4">Resources</h2>
           {resources.length === 0 ? (
             <p className="text-gray-600">No resources yet.</p>
           ) : (
