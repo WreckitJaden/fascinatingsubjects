@@ -24,15 +24,15 @@ export const metadata: Metadata = {
     statusBarStyle: "default",
     title: "Topics to Study",
   },
-  themeColor: "#DA2048",
+  themeColor: "#000000",
   viewport: {
     width: "device-width",
     initialScale: 1,
     viewportFit: "cover",
   },
   icons: {
-    icon: "/newlogo.png",
-    apple: "/newlogo.png",
+    icon: "/newnewlogo.png",
+    apple: "/newnewlogo.png",
   },
 };
 
