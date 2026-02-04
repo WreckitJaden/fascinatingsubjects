@@ -31,7 +31,8 @@ export const metadata: Metadata = {
     viewportFit: "cover",
   },
   icons: {
-    apple: "/curriculumlogo.svg",
+    icon: "/newlogo.png",
+    apple: "/newlogo.png",
   },
 };
 
