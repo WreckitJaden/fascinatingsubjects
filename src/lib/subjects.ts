@@ -10,19 +10,26 @@ export const subjects: Subject[] = [
   { id: 2, name: "The Brain", slug: "the-brain" },
   { id: 3, name: "Cells", slug: "cells" },
   { id: 4, name: "Mathematics", slug: "mathematics", description: "The ability to calculate" },
-  { id: 5, name: "AI Mechanics", slug: "ai-mechanics", description: "Underlying mechanics of AI" },
+  {
+    id: 5,
+    name: "AI Mechanics",
+    slug: "ai-mechanics",
+    description:
+      "Underlying mechanics of AI (programming languages, LLMs, agents, algorithms, self-driving, autonomy, etc). Beginning with the most fundamental mechanisms.",
+  },
   {
     id: 6,
-    name: "Commercial Markets",
+    name: "Commercial Markets (b2b) and Consumer Markets (b2c)",
     slug: "commercial-markets",
     description:
-      "Trending markets, predicted to grow, use-cases. Interested in all consumer markets, what products/services exist, and what markets are booming or will begin to in the near future",
+      "Trending markets, predicted to grow, use-cases. Interested in all consumer and commercial markets. What products/services exist? Which markets are booming? Which are projected to experience significant near term growth (5yrs, 10yrs, 20yrs)? What events, problems, and variables sparked the development of that market and the growth of its incumbents?",
   },
   {
     id: 7,
     name: "Infrastructure Megaprojects",
     slug: "infrastructure-megaprojects",
-    description: "History of physical infrastructure megaprojects: architecture, buildings, dams, railways, machines, etc",
+    description:
+      "History of physical infrastructure megaprojects: architecture, buildings, dams, railways, machines, etc. Interested in designing phases, strategizing, planning, timelines, restrictions, budgeting, execution, putting teams together, team culture and sentiment, launch, metrics/milestones used, etc. Interested in both successful and failed projects.",
   },
   {
     id: 8,
