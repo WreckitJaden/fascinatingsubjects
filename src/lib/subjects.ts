@@ -7,9 +7,21 @@ export interface Subject {
 
 export const subjects: Subject[] = [
   { id: 1, name: "Physics", slug: "physics" },
-  { id: 2, name: "The Brain", slug: "the-brain" },
+  {
+    id: 2,
+    name: "The Brain",
+    slug: "the-brain",
+    description:
+      "Neuroscience. Cognitive neurosci, neuroanatomy, developmental neurosci, etc. CNS & PNS. Neurotransmitters. Hormones. Neurotech advances (BCI, neural decoding, precise stimulation, etc).",
+  },
   { id: 3, name: "Cells", slug: "cells" },
-  { id: 4, name: "Mathematics", slug: "mathematics", description: "The ability to calculate" },
+  {
+    id: 4,
+    name: "Mathematics",
+    slug: "mathematics",
+    description:
+      "The ability to calculate (unknowns, objects in space, distance, time, speed, size, depth, slope, force, motion, rate of change, etc).",
+  },
   {
     id: 5,
     name: "AI Mechanics",
