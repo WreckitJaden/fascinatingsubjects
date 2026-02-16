@@ -14,7 +14,13 @@ export const subjects: Subject[] = [
     description:
       "Neuroscience. Cognitive neurosci, neuroanatomy, developmental neurosci, etc. CNS & PNS. Neurotransmitters. Hormones. Neurotech advances (BCI, neural decoding, precise stimulation, etc).",
   },
-  { id: 3, name: "Cells", slug: "cells" },
+  {
+    id: 3,
+    name: "Cells",
+    slug: "cells",
+    description:
+      "Evolutionary biology, developmental biology, cell cycle (molecular bio), etc.",
+  },
   {
     id: 4,
     name: "Mathematics",
@@ -48,7 +54,7 @@ export const subjects: Subject[] = [
     name: "Psychology",
     slug: "psychology",
     description:
-      "Relationships, interpersonal development, conflict mitigation, psychological development in children, teens, adults, adverse experiences",
+      "Psychotherapy, relationships, psychiatry, unconditional positive regard, interpersonal development, conflict mitigation, psychological development in children, teens, adults, adverse experiences",
   },
   {
     id: 9,

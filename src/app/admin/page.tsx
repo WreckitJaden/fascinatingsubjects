@@ -257,7 +257,7 @@ export default function AdminPage() {
           </div>
         </section>
 
-        {/* Topics Section */}
+c        {/* Topics Section */}
         <section>
           <h2 className="text-xl font-normal text-black mb-4">Topics</h2>
           <div className="space-y-8">
