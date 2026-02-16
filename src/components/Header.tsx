@@ -41,20 +41,24 @@ export default function Header() {
             </Link>
             <div className="flex items-center gap-4">
               {!session && (
-                <>
+                <span className="text-sm flex items-center gap-1 flex-wrap">
+                  <span className="font-semibold text-gray-800">Recommend:</span>
                   <button
+                    type="button"
                     onClick={() => setShowRecommendForm(!showRecommendForm)}
-                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                    className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                   >
-                    Recommend a Resource
+                    resource
                   </button>
+                  <span className="text-gray-500">/</span>
                   <button
+                    type="button"
                     onClick={() => setShowRecommendBookForm(!showRecommendBookForm)}
-                    className="text-sm text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                    className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
                   >
-                    Recommend a Book
+                    book
                   </button>
-                </>
+                </span>
               )}
               {status === "loading" ? null : session ? (
                 <>
