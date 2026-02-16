@@ -16,64 +16,43 @@ interface ReadingListResponse {
 const MAX_NEXT = 4;
 const MAX_CURRENTLY_READING = 1;
 
-function BookCell({
-  book,
-  showDone,
-  onDone,
-  doneLabel = "Done",
-  onMoveToCurrentlyReading,
-  moveToCurrentlyReadingDisabled,
-}: {
-  book: ReadingListBook;
-  showDone?: boolean;
-  onDone?: () => void;
-  doneLabel?: string;
-  onMoveToCurrentlyReading?: () => void;
-  moveToCurrentlyReadingDisabled?: boolean;
-}) {
-  const content = book.url ? (
-    <a
-      href={book.url}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-    >
-      {book.title}
-    </a>
-  ) : (
-    <span className="text-gray-700">{book.title}</span>
-  );
-  const showMoveToCR = onMoveToCurrentlyReading !== undefined;
-  const hasActions = (showDone && onDone) || showMoveToCR;
-  return (
-    <tr>
-      <td className="py-2 pr-4 align-top">{content}</td>
-      {hasActions && (
-        <td className="py-2 align-top">
-          <div className="flex flex-wrap gap-1">
-            {showMoveToCR && (
-              <button
-                onClick={onMoveToCurrentlyReading}
-                disabled={moveToCurrentlyReadingDisabled}
-                title={moveToCurrentlyReadingDisabled ? "Finish current book first (max 1)" : undefined}
-                className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-              >
-                Move to Currently Reading
-              </button>
-            )}
-            {showDone && onDone && (
-              <button
-                onClick={onDone}
-                className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 cursor-pointer"
-              >
-                {doneLabel}
-              </button>
-            )}
-          </div>
-        </td>
-      )}
-    </tr>
-  );
+function BookTitle({ book, isEditMode }: { book: ReadingListBook; isEditMode: boolean }) {
+  if (isEditMode) {
+    return <span className="text-gray-900">{book.title}</span>;
+  }
+  if (book.url) {
+    return (
+      <a
+        href={book.url}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+      >
+        {book.title}
+      </a>
+    );
+  }
+  return <span className="text-gray-700">{book.title}</span>;
+}
+
+const IconCheck = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+const IconX = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+const IconArrowRight = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
+function iconButtonClass() {
+  return "p-1.5 rounded text-gray-600 hover:text-gray-900 hover:bg-gray-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent";
 }
 
 export default function ReadingListPage() {
@@ -81,6 +60,8 @@ export default function ReadingListPage() {
   const [data, setData] = useState<ReadingListResponse | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
 
   const load = async () => {
     try {
@@ -160,6 +141,22 @@ export default function ReadingListPage() {
     }
   };
 
+  const handleDeleteBook = async (bookId: string) => {
+    try {
+      const res = await fetch("/api/reading-list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "deleteBook", bookId }),
+      });
+      if (res.ok) {
+        setSelectedBookId((id) => (id === bookId ? null : id));
+        await load();
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white min-h-screen p-6">
@@ -182,21 +179,35 @@ export default function ReadingListPage() {
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-4xl px-6 py-12">
-        <div className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex items-center justify-between flex-wrap gap-2">
           <Link
             href="/"
             className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
           >
             ← Back
           </Link>
-          {session && (
-            <Link
-              href="/admin"
-              className="text-sm text-gray-600 hover:text-gray-800 hover:underline cursor-pointer"
-            >
-              Manage in Admin
-            </Link>
-          )}
+          <div className="flex items-center gap-4">
+            {session && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsEditMode((e) => !e);
+                    setSelectedBookId(null);
+                  }}
+                  className="text-sm text-gray-600 hover:text-gray-800 hover:underline cursor-pointer"
+                >
+                  {isEditMode ? "Done" : "Edit"}
+                </button>
+                <Link
+                  href="/admin"
+                  className="text-sm text-gray-600 hover:text-gray-800 hover:underline cursor-pointer"
+                >
+                  Manage in Admin
+                </Link>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="mb-10 p-4 border border-gray-300 rounded-lg bg-gray-50">
@@ -209,28 +220,50 @@ export default function ReadingListPage() {
                 <thead>
                   <tr>
                     <th className="text-left text-sm font-medium text-gray-600 py-1 pr-4">Book</th>
-                    {session && (
-                      <th className="text-left text-sm font-medium text-gray-600 py-1">Action</th>
+                    {session && isEditMode && (
+                      <th className="text-left text-sm font-medium text-gray-600 py-1 w-12" aria-hidden />
                     )}
                   </tr>
                 </thead>
                 <tbody>
                   {data.currentlyReading.length === 0 ? (
                     <tr>
-                      <td colSpan={session ? 2 : 1} className="py-2 text-gray-500 text-sm">
+                      <td colSpan={session && isEditMode ? 2 : 1} className="py-2 text-gray-500 text-sm">
                         None
                       </td>
                     </tr>
                   ) : (
-                    data.currentlyReading.map((book) => (
-                      <BookCell
-                        key={book.id}
-                        book={book}
-                        showDone={!!session}
-                        onDone={() => handleRemoveFromCurrentlyReading(book.id)}
-                        doneLabel="Done"
-                      />
-                    ))
+                    data.currentlyReading.map((book) => {
+                      const selected = session && isEditMode && selectedBookId === book.id;
+                      return (
+                        <tr
+                          key={book.id}
+                          onClick={() => session && isEditMode && setSelectedBookId((id) => (id === book.id ? null : book.id))}
+                          className={`py-2 ${session && isEditMode ? "cursor-pointer hover:bg-gray-100" : ""} ${selected ? "bg-gray-200" : ""}`}
+                        >
+                          <td className="py-2 pr-4 align-top">
+                            <BookTitle book={book} isEditMode={!!(session && isEditMode)} />
+                          </td>
+                          {session && isEditMode && (
+                            <td className="py-2 align-top w-12">
+                              {selected && (
+                                <button
+                                  type="button"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleRemoveFromCurrentlyReading(book.id);
+                                  }}
+                                  title="Mark done"
+                                  className={iconButtonClass()}
+                                >
+                                  <IconCheck />
+                                </button>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -243,30 +276,65 @@ export default function ReadingListPage() {
                 <thead>
                   <tr>
                     <th className="text-left text-sm font-medium text-gray-600 py-1 pr-4">Book</th>
-                    {session && (
-                      <th className="text-left text-sm font-medium text-gray-600 py-1">Action</th>
+                    {session && isEditMode && (
+                      <th className="text-left text-sm font-medium text-gray-600 py-1 w-24" aria-hidden />
                     )}
                   </tr>
                 </thead>
                 <tbody>
                   {data.next.length === 0 ? (
                     <tr>
-                      <td colSpan={session ? 2 : 1} className="py-2 text-gray-500 text-sm">
+                      <td colSpan={session && isEditMode ? 2 : 1} className="py-2 text-gray-500 text-sm">
                         None
                       </td>
                     </tr>
                   ) : (
-                    data.next.map((book) => (
-                      <BookCell
-                        key={book.id}
-                        book={book}
-                        showDone={!!session}
-                        onDone={() => handleRemoveFromNext(book.id)}
-                        onMoveToCurrentlyReading={session ? () => handleMoveToCurrentlyReading(book.id) : undefined}
-                        moveToCurrentlyReadingDisabled={data.currentlyReading.length >= MAX_CURRENTLY_READING}
-                        doneLabel="Done"
-                      />
-                    ))
+                    data.next.map((book) => {
+                      const selected = session && isEditMode && selectedBookId === book.id;
+                      const crFull = data.currentlyReading.length >= MAX_CURRENTLY_READING;
+                      return (
+                        <tr
+                          key={book.id}
+                          onClick={() => session && isEditMode && setSelectedBookId((id) => (id === book.id ? null : book.id))}
+                          className={`py-2 ${session && isEditMode ? "cursor-pointer hover:bg-gray-100" : ""} ${selected ? "bg-gray-200" : ""}`}
+                        >
+                          <td className="py-2 pr-4 align-top">
+                            <BookTitle book={book} isEditMode={!!(session && isEditMode)} />
+                          </td>
+                          {session && isEditMode && (
+                            <td className="py-2 align-top">
+                              {selected && (
+                                <div className="flex items-center gap-0.5">
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleRemoveFromNext(book.id);
+                                    }}
+                                    title="Remove from Next"
+                                    className={iconButtonClass()}
+                                  >
+                                    <IconX />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleMoveToCurrentlyReading(book.id);
+                                    }}
+                                    disabled={crFull}
+                                    title={crFull ? "Finish current book first (max 1)" : "Move to Currently Reading"}
+                                    className={iconButtonClass()}
+                                  >
+                                    <IconArrowRight />
+                                  </button>
+                                </div>
+                              )}
+                            </td>
+                          )}
+                        </tr>
+                      );
+                    })
                   )}
                 </tbody>
               </table>
@@ -283,33 +351,41 @@ export default function ReadingListPage() {
               {!category.books?.length ? (
                 <p className="text-gray-500 text-sm">No books</p>
               ) : (
-                <ul className="space-y-2 list-none pl-0">
-                  {category.books.map((book) => (
-                    <li key={book.id} className="flex items-center gap-2 flex-wrap">
-                      {book.url ? (
-                        <a
-                          href={book.url}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
-                        >
-                          {book.title}
-                        </a>
-                      ) : (
-                        <span className="text-gray-700">{book.title}</span>
-                      )}
-                      {session && (
-                        <button
-                          onClick={() => handleAddToNext(book.id)}
-                          disabled={data.next.length >= MAX_NEXT}
-                          title={data.next.length >= MAX_NEXT ? `Next list is full (max ${MAX_NEXT})` : undefined}
-                          className="px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                        >
-                          Add to Next
-                        </button>
-                      )}
-                    </li>
-                  ))}
+                <ul className="space-y-1 list-none pl-0">
+                  {category.books.map((book) => {
+                    const selected = session && isEditMode && selectedBookId === book.id;
+                    const nextFull = data.next.length >= MAX_NEXT;
+                    return (
+                      <li
+                        key={book.id}
+                        onClick={() => session && isEditMode && setSelectedBookId((id) => (id === book.id ? null : book.id))}
+                        className={`flex items-center gap-2 flex-wrap py-1.5 px-2 -mx-2 rounded ${session && isEditMode ? "cursor-pointer hover:bg-gray-100" : ""} ${selected ? "bg-gray-200" : ""}`}
+                      >
+                        <BookTitle book={book} isEditMode={!!(session && isEditMode)} />
+                        {session && isEditMode && selected && (
+                          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteBook(book.id)}
+                              title="Delete book"
+                              className={iconButtonClass()}
+                            >
+                              <IconX />
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleAddToNext(book.id)}
+                              disabled={nextFull}
+                              title={nextFull ? `Next list is full (max ${MAX_NEXT})` : "Add to Next"}
+                              className="px-2 py-1 text-xs rounded text-gray-600 hover:text-gray-900 hover:bg-gray-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                            >
+                              Next
+                            </button>
+                          </div>
+                        )}
+                      </li>
+                    );
+                  })}
                 </ul>
               )}
             </section>
