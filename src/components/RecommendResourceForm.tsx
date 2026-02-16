@@ -129,7 +129,7 @@ export default function RecommendResourceForm({ onClose }: RecommendResourceForm
 
         <div>
           <label htmlFor="note" className="block text-sm font-medium text-gray-700 mb-1">
-            Why is it good? (optional)
+            Why do you recommend? (optional)
           </label>
           <textarea
             id="note"

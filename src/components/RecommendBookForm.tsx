@@ -13,7 +13,6 @@ interface RecommendBookFormProps {
 
 export default function RecommendBookForm({ onClose }: RecommendBookFormProps) {
   const [categories, setCategories] = useState<CategoryOption[]>([]);
-  const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [note, setNote] = useState("");
@@ -35,10 +34,10 @@ export default function RecommendBookForm({ onClose }: RecommendBookFormProps) {
     setIsSubmitting(true);
     setMessage(null);
 
-    if (!title.trim() || !url.trim() || !categoryId) {
+    if (!url.trim() || !categoryId) {
       setMessage({
         type: "error",
-        text: "Please enter title, URL, and select a category",
+        text: "Please enter a link and select a category",
       });
       setIsSubmitting(false);
       return;
@@ -49,7 +48,6 @@ export default function RecommendBookForm({ onClose }: RecommendBookFormProps) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          title: title.trim(),
           url: url.trim(),
           categoryId,
           note: note.trim() || undefined,
@@ -66,7 +64,6 @@ export default function RecommendBookForm({ onClose }: RecommendBookFormProps) {
         type: "success",
         text: "Thank you! Your book recommendation has been submitted.",
       });
-      setTitle("");
       setUrl("");
       setCategoryId("");
       setNote("");
@@ -89,27 +86,10 @@ export default function RecommendBookForm({ onClose }: RecommendBookFormProps) {
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
           <label
-            htmlFor="book-title"
-            className="block text-sm font-medium text-gray-700 mb-1"
-          >
-            Book title
-          </label>
-          <input
-            id="book-title"
-            type="text"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            placeholder="Title (and author if you like)"
-            className="w-full px-3 py-2 border border-gray-300 rounded text-black"
-            required
-          />
-        </div>
-        <div>
-          <label
             htmlFor="book-url"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            URL (e.g. Amazon, bookstore link)
+            Link
           </label>
           <input
             id="book-url"
@@ -148,7 +128,7 @@ export default function RecommendBookForm({ onClose }: RecommendBookFormProps) {
             htmlFor="book-note"
             className="block text-sm font-medium text-gray-700 mb-1"
           >
-            Note (optional)
+            Why do you recommend? (optional)
           </label>
           <textarea
             id="book-note"

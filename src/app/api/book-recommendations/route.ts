@@ -17,12 +17,6 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     const { title, url, categoryId, note } = body;
 
-    if (!title?.trim()) {
-      return NextResponse.json(
-        { error: "Title is required" },
-        { status: 400 }
-      );
-    }
     if (!url?.trim()) {
       return NextResponse.json(
         { error: "URL is required" },
@@ -63,10 +57,13 @@ export async function POST(request: NextRequest) {
       // file may not exist yet
     }
 
+    const trimmedUrl = url.trim();
+    const displayTitle = title?.trim() || trimmedUrl;
+
     const recommendation: BookRecommendation = {
       id: randomUUID(),
-      title: title.trim(),
-      url: url.trim(),
+      title: displayTitle,
+      url: trimmedUrl,
       categoryId,
       categoryName: category.name,
       note: note?.trim() || undefined,
