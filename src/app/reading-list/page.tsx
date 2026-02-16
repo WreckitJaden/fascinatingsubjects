@@ -13,16 +13,23 @@ interface ReadingListResponse {
   currentlyReadingIds: string[];
 }
 
+const MAX_NEXT = 4;
+const MAX_CURRENTLY_READING = 1;
+
 function BookCell({
   book,
   showDone,
   onDone,
   doneLabel = "Done",
+  onMoveToCurrentlyReading,
+  moveToCurrentlyReadingDisabled,
 }: {
   book: ReadingListBook;
   showDone?: boolean;
   onDone?: () => void;
   doneLabel?: string;
+  onMoveToCurrentlyReading?: () => void;
+  moveToCurrentlyReadingDisabled?: boolean;
 }) {
   const content = book.url ? (
     <a
@@ -36,17 +43,33 @@ function BookCell({
   ) : (
     <span className="text-gray-700">{book.title}</span>
   );
+  const showMoveToCR = onMoveToCurrentlyReading !== undefined;
+  const hasActions = (showDone && onDone) || showMoveToCR;
   return (
     <tr>
       <td className="py-2 pr-4 align-top">{content}</td>
-      {showDone && onDone && (
-        <td className="py-2 w-20 align-top">
-          <button
-            onClick={onDone}
-            className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 cursor-pointer"
-          >
-            {doneLabel}
-          </button>
+      {hasActions && (
+        <td className="py-2 align-top">
+          <div className="flex flex-wrap gap-1">
+            {showMoveToCR && (
+              <button
+                onClick={onMoveToCurrentlyReading}
+                disabled={moveToCurrentlyReadingDisabled}
+                title={moveToCurrentlyReadingDisabled ? "Finish current book first (max 1)" : undefined}
+                className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Move to Currently Reading
+              </button>
+            )}
+            {showDone && onDone && (
+              <button
+                onClick={onDone}
+                className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 cursor-pointer"
+              >
+                {doneLabel}
+              </button>
+            )}
+          </div>
         </td>
       )}
     </tr>
@@ -104,6 +127,39 @@ export default function ReadingListPage() {
     }
   };
 
+  const handleMoveToCurrentlyReading = async (bookId: string) => {
+    try {
+      const [removeRes, addRes] = await Promise.all([
+        fetch("/api/reading-list", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "removeFromNext", bookId }),
+        }),
+        fetch("/api/reading-list", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ action: "addToCurrentlyReading", bookId }),
+        }),
+      ]);
+      if (removeRes.ok && addRes.ok) await load();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAddToNext = async (bookId: string) => {
+    try {
+      const res = await fetch("/api/reading-list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ action: "addToNext", bookId }),
+      });
+      if (res.ok) await load();
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   if (loading) {
     return (
       <div className="bg-white min-h-screen p-6">
@@ -154,7 +210,7 @@ export default function ReadingListPage() {
                   <tr>
                     <th className="text-left text-sm font-medium text-gray-600 py-1 pr-4">Book</th>
                     {session && (
-                      <th className="text-left text-sm font-medium text-gray-600 py-1 w-20">Action</th>
+                      <th className="text-left text-sm font-medium text-gray-600 py-1">Action</th>
                     )}
                   </tr>
                 </thead>
@@ -188,7 +244,7 @@ export default function ReadingListPage() {
                   <tr>
                     <th className="text-left text-sm font-medium text-gray-600 py-1 pr-4">Book</th>
                     {session && (
-                      <th className="text-left text-sm font-medium text-gray-600 py-1 w-20">Action</th>
+                      <th className="text-left text-sm font-medium text-gray-600 py-1">Action</th>
                     )}
                   </tr>
                 </thead>
@@ -206,6 +262,8 @@ export default function ReadingListPage() {
                         book={book}
                         showDone={!!session}
                         onDone={() => handleRemoveFromNext(book.id)}
+                        onMoveToCurrentlyReading={session ? () => handleMoveToCurrentlyReading(book.id) : undefined}
+                        moveToCurrentlyReadingDisabled={data.currentlyReading.length >= MAX_CURRENTLY_READING}
                         doneLabel="Done"
                       />
                     ))
@@ -227,7 +285,7 @@ export default function ReadingListPage() {
               ) : (
                 <ul className="space-y-2 list-none pl-0">
                   {category.books.map((book) => (
-                    <li key={book.id}>
+                    <li key={book.id} className="flex items-center gap-2 flex-wrap">
                       {book.url ? (
                         <a
                           href={book.url}
@@ -239,6 +297,16 @@ export default function ReadingListPage() {
                         </a>
                       ) : (
                         <span className="text-gray-700">{book.title}</span>
+                      )}
+                      {session && (
+                        <button
+                          onClick={() => handleAddToNext(book.id)}
+                          disabled={data.next.length >= MAX_NEXT}
+                          title={data.next.length >= MAX_NEXT ? `Next list is full (max ${MAX_NEXT})` : undefined}
+                          className="px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                        >
+                          Add to Next
+                        </button>
                       )}
                     </li>
                   ))}

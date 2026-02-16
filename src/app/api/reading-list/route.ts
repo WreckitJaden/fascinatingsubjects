@@ -8,6 +8,9 @@ import {
 } from "@/lib/reading-list";
 import { randomUUID } from "crypto";
 
+const MAX_NEXT = 4;
+const MAX_CURRENTLY_READING = 1;
+
 function defaultData(): ReadingListData {
   return { categories: [], next: [], currentlyReading: [] };
 }
@@ -138,7 +141,7 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
-        data.next = bookIds;
+        data.next = bookIds.slice(0, MAX_NEXT);
         await writeReadingListData(data, "Update Next list");
         return NextResponse.json({ success: true });
       }
@@ -151,7 +154,7 @@ export async function POST(request: NextRequest) {
             { status: 400 }
           );
         }
-        data.currentlyReading = bookIds;
+        data.currentlyReading = bookIds.slice(0, MAX_CURRENTLY_READING);
         await writeReadingListData(
           data,
           "Update Currently Reading list"
@@ -168,6 +171,12 @@ export async function POST(request: NextRequest) {
           );
         }
         data.next = data.next || [];
+        if (data.next.length >= MAX_NEXT) {
+          return NextResponse.json(
+            { error: `Next list is full (max ${MAX_NEXT})` },
+            { status: 400 }
+          );
+        }
         if (!data.next.includes(bookId)) {
           data.next.push(bookId);
         }
@@ -184,6 +193,12 @@ export async function POST(request: NextRequest) {
           );
         }
         data.currentlyReading = data.currentlyReading || [];
+        if (data.currentlyReading.length >= MAX_CURRENTLY_READING) {
+          return NextResponse.json(
+            { error: `Currently Reading is full (max ${MAX_CURRENTLY_READING})` },
+            { status: 400 }
+          );
+        }
         if (!data.currentlyReading.includes(bookId)) {
           data.currentlyReading.push(bookId);
         }
