@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/api/auth/[...nextauth]/route";
-import { readJsonFromGitHub, writeJsonToGitHub } from "@/lib/github";
+import { readReadingListData, writeReadingListData } from "@/lib/reading-list-data";
 import {
   type ReadingListData,
   type ReadingListBook,
@@ -8,15 +8,13 @@ import {
 } from "@/lib/reading-list";
 import { randomUUID } from "crypto";
 
-const DATA_PATH = "data/reading-list.json";
-
 function defaultData(): ReadingListData {
   return { categories: [], next: [], currentlyReading: [] };
 }
 
 export async function GET() {
   try {
-    const data = await readJsonFromGitHub<ReadingListData>(DATA_PATH);
+    const data = await readReadingListData();
     const list = data.categories?.length ? data : defaultData();
 
     // Resolve next and currentlyReading to full book objects
@@ -63,7 +61,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    let data = await readJsonFromGitHub<ReadingListData>(DATA_PATH);
+    let data = await readReadingListData();
     if (!data.categories?.length) {
       data = defaultData();
     }
@@ -91,8 +89,7 @@ export async function POST(request: NextRequest) {
         };
         cat.books = cat.books || [];
         cat.books.push(book);
-        await writeJsonToGitHub(
-          DATA_PATH,
+        await writeReadingListData(
           data,
           `Add book: ${book.title} to ${cat.name}`
         );
@@ -108,8 +105,7 @@ export async function POST(request: NextRequest) {
           );
         }
         data.next = (data.next || []).filter((id) => id !== bookId);
-        await writeJsonToGitHub(
-          DATA_PATH,
+        await writeReadingListData(
           data,
           `Remove book from Next: ${bookId}`
         );
@@ -127,8 +123,7 @@ export async function POST(request: NextRequest) {
         data.currentlyReading = (data.currentlyReading || []).filter(
           (id) => id !== bookId
         );
-        await writeJsonToGitHub(
-          DATA_PATH,
+        await writeReadingListData(
           data,
           `Remove book from Currently Reading: ${bookId}`
         );
@@ -144,7 +139,7 @@ export async function POST(request: NextRequest) {
           );
         }
         data.next = bookIds;
-        await writeJsonToGitHub(DATA_PATH, data, "Update Next list");
+        await writeReadingListData(data, "Update Next list");
         return NextResponse.json({ success: true });
       }
 
@@ -157,8 +152,7 @@ export async function POST(request: NextRequest) {
           );
         }
         data.currentlyReading = bookIds;
-        await writeJsonToGitHub(
-          DATA_PATH,
+        await writeReadingListData(
           data,
           "Update Currently Reading list"
         );
@@ -177,7 +171,7 @@ export async function POST(request: NextRequest) {
         if (!data.next.includes(bookId)) {
           data.next.push(bookId);
         }
-        await writeJsonToGitHub(DATA_PATH, data, `Add book to Next: ${bookId}`);
+        await writeReadingListData(data, `Add book to Next: ${bookId}`);
         return NextResponse.json({ success: true });
       }
 
@@ -193,8 +187,7 @@ export async function POST(request: NextRequest) {
         if (!data.currentlyReading.includes(bookId)) {
           data.currentlyReading.push(bookId);
         }
-        await writeJsonToGitHub(
-          DATA_PATH,
+        await writeReadingListData(
           data,
           `Add book to Currently Reading: ${bookId}`
         );
@@ -216,7 +209,7 @@ export async function POST(request: NextRequest) {
         data.currentlyReading = (data.currentlyReading || []).filter(
           (id) => id !== bookId
         );
-        await writeJsonToGitHub(DATA_PATH, data, `Delete book: ${bookId}`);
+        await writeReadingListData(data, `Delete book: ${bookId}`);
         return NextResponse.json({ success: true });
       }
 

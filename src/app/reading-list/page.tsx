@@ -13,7 +13,7 @@ interface ReadingListResponse {
   currentlyReadingIds: string[];
 }
 
-function BookItem({
+function BookCell({
   book,
   showDone,
   onDone,
@@ -37,17 +37,19 @@ function BookItem({
     <span className="text-gray-700">{book.title}</span>
   );
   return (
-    <li className="flex items-center gap-2">
-      {content}
+    <tr>
+      <td className="py-2 pr-4 align-top">{content}</td>
       {showDone && onDone && (
-        <button
-          onClick={onDone}
-          className="ml-2 px-2 py-0.5 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 cursor-pointer"
-        >
-          {doneLabel}
-        </button>
+        <td className="py-2 w-20 align-top">
+          <button
+            onClick={onDone}
+            className="px-2 py-1 text-xs bg-gray-200 text-gray-700 rounded hover:bg-gray-300 cursor-pointer"
+          >
+            {doneLabel}
+          </button>
+        </td>
       )}
-    </li>
+    </tr>
   );
 }
 
@@ -124,61 +126,95 @@ export default function ReadingListPage() {
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-4xl px-6 py-12">
-        <div className="mb-8">
+        <div className="mb-8 flex items-center justify-between">
           <Link
             href="/"
-            className="text-blue-600 hover:text-blue-800 hover:underline mb-4 inline-block cursor-pointer"
+            className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
           >
             ← Back
           </Link>
-          <div className="flex items-center justify-between mt-4">
-            <h1 className="text-2xl font-normal text-black">Reading List</h1>
-            {session && (
-              <Link
-                href="/admin"
-                className="text-sm text-gray-600 hover:text-gray-800 hover:underline cursor-pointer"
-              >
-                Manage in Admin
-              </Link>
-            )}
-          </div>
+          {session && (
+            <Link
+              href="/admin"
+              className="text-sm text-gray-600 hover:text-gray-800 hover:underline cursor-pointer"
+            >
+              Manage in Admin
+            </Link>
+          )}
         </div>
 
-        {data.currentlyReading.length > 0 && (
-          <section className="mb-10">
-            <h2 className="text-lg font-medium text-black mb-3">
-              Currently Reading
-            </h2>
-            <ul className="space-y-2 list-none pl-0">
-              {data.currentlyReading.map((book) => (
-                <BookItem
-                  key={book.id}
-                  book={book}
-                  showDone={!!session}
-                  onDone={() => handleRemoveFromCurrentlyReading(book.id)}
-                  doneLabel="Done"
-                />
-              ))}
-            </ul>
-          </section>
-        )}
-
-        {data.next.length > 0 && (
-          <section className="mb-10">
-            <h2 className="text-lg font-medium text-black mb-3">Next</h2>
-            <ul className="space-y-2 list-none pl-0">
-              {data.next.map((book) => (
-                <BookItem
-                  key={book.id}
-                  book={book}
-                  showDone={!!session}
-                  onDone={() => handleRemoveFromNext(book.id)}
-                  doneLabel="Done"
-                />
-              ))}
-            </ul>
-          </section>
-        )}
+        <div className="mb-10 p-4 border border-gray-300 rounded-lg bg-gray-50">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <div>
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">
+                Currently Reading
+              </h2>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="text-left text-sm font-medium text-gray-600 py-1 pr-4">Book</th>
+                    {session && (
+                      <th className="text-left text-sm font-medium text-gray-600 py-1 w-20">Action</th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.currentlyReading.length === 0 ? (
+                    <tr>
+                      <td colSpan={session ? 2 : 1} className="py-2 text-gray-500 text-sm">
+                        None
+                      </td>
+                    </tr>
+                  ) : (
+                    data.currentlyReading.map((book) => (
+                      <BookCell
+                        key={book.id}
+                        book={book}
+                        showDone={!!session}
+                        onDone={() => handleRemoveFromCurrentlyReading(book.id)}
+                        doneLabel="Done"
+                      />
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold text-gray-700 uppercase tracking-wide mb-2">
+                Next
+              </h2>
+              <table className="w-full border-collapse">
+                <thead>
+                  <tr>
+                    <th className="text-left text-sm font-medium text-gray-600 py-1 pr-4">Book</th>
+                    {session && (
+                      <th className="text-left text-sm font-medium text-gray-600 py-1 w-20">Action</th>
+                    )}
+                  </tr>
+                </thead>
+                <tbody>
+                  {data.next.length === 0 ? (
+                    <tr>
+                      <td colSpan={session ? 2 : 1} className="py-2 text-gray-500 text-sm">
+                        None
+                      </td>
+                    </tr>
+                  ) : (
+                    data.next.map((book) => (
+                      <BookCell
+                        key={book.id}
+                        book={book}
+                        showDone={!!session}
+                        onDone={() => handleRemoveFromNext(book.id)}
+                        doneLabel="Done"
+                      />
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
 
         <div className="space-y-10">
           {data.categories.map((category) => (
@@ -191,7 +227,20 @@ export default function ReadingListPage() {
               ) : (
                 <ul className="space-y-2 list-none pl-0">
                   {category.books.map((book) => (
-                    <BookItem key={book.id} book={book} />
+                    <li key={book.id}>
+                      {book.url ? (
+                        <a
+                          href={book.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-600 hover:text-blue-800 hover:underline cursor-pointer"
+                        >
+                          {book.title}
+                        </a>
+                      ) : (
+                        <span className="text-gray-700">{book.title}</span>
+                      )}
+                    </li>
                   ))}
                 </ul>
               )}

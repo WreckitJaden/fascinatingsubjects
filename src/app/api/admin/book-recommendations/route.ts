@@ -1,12 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/app/api/auth/[...nextauth]/route";
 import { readJsonFromGitHub, writeJsonToGitHub } from "@/lib/github";
+import { readReadingListData, writeReadingListData } from "@/lib/reading-list-data";
 import type { BookRecommendation, ReadingListBook } from "@/lib/reading-list";
-import type { ReadingListData } from "@/lib/reading-list";
 import { randomUUID } from "crypto";
 
 const DATA_PATH = "data/book-recommendations.json";
-const READING_LIST_PATH = "data/reading-list.json";
 
 interface BookRecommendationsFile {
   pending: BookRecommendation[];
@@ -86,7 +85,7 @@ export async function POST(request: NextRequest) {
     }
 
     if (action === "approve") {
-      const list = await readJsonFromGitHub<ReadingListData>(READING_LIST_PATH);
+      const list = await readReadingListData();
       const category = (list.categories || []).find(
         (c) => c.id === rec.categoryId
       );
@@ -98,8 +97,7 @@ export async function POST(request: NextRequest) {
         };
         category.books = category.books || [];
         category.books.push(book);
-        await writeJsonToGitHub(
-          READING_LIST_PATH,
+        await writeReadingListData(
           list,
           `Add book from recommendation: ${rec.title}`
         );

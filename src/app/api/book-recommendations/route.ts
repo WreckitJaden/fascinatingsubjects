@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { readJsonFromGitHub, writeJsonToGitHub } from "@/lib/github";
-import type { BookRecommendation, ReadingListData } from "@/lib/reading-list";
+import { readReadingListData } from "@/lib/reading-list-data";
+import type { BookRecommendation } from "@/lib/reading-list";
 import { randomUUID } from "crypto";
 
 const DATA_PATH = "data/book-recommendations.json";
-const READING_LIST_PATH = "data/reading-list.json";
 
 interface BookRecommendationsFile {
   pending: BookRecommendation[];
@@ -41,7 +41,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const list = await readJsonFromGitHub<ReadingListData>(READING_LIST_PATH);
+    const list = await readReadingListData();
     const category = (list.categories || []).find((c) => c.id === categoryId);
     if (!category) {
       return NextResponse.json(
