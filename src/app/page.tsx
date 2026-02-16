@@ -124,6 +124,14 @@ export default function Home() {
               </li>
             ))}
           </ul>
+          <div className="mt-6 pt-6 border-t border-gray-200">
+            <Link
+              href="/reading-list"
+              className="inline-block px-4 py-2 rounded-full border border-gray-300 bg-gray-50 text-gray-800 font-medium text-sm hover:bg-gray-100 hover:border-gray-400 cursor-pointer transition-colors"
+            >
+              Reading List
+            </Link>
+          </div>
         </nav>
       </div>
     </div>
