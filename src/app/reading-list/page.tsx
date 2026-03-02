@@ -50,6 +50,12 @@ const IconArrowRight = () => (
     <line x1="5" y1="12" x2="19" y2="12" /><polyline points="12 5 19 12 12 19" />
   </svg>
 );
+const IconPencil = () => (
+  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    <path d="m15 5 4 4" />
+  </svg>
+);
 
 function iconButtonClass() {
   return "p-1.5 rounded text-gray-600 hover:text-gray-900 hover:bg-gray-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:bg-transparent";
@@ -62,6 +68,11 @@ export default function ReadingListPage() {
   const [error, setError] = useState<string | null>(null);
   const [isEditMode, setIsEditMode] = useState(false);
   const [selectedBookId, setSelectedBookId] = useState<string | null>(null);
+  const [editingBookId, setEditingBookId] = useState<string | null>(null);
+  const [editTitle, setEditTitle] = useState("");
+  const [editUrl, setEditUrl] = useState("");
+  const [editCategoryId, setEditCategoryId] = useState("");
+  const [editSaving, setEditSaving] = useState(false);
 
   const load = async () => {
     try {
@@ -150,10 +161,52 @@ export default function ReadingListPage() {
       });
       if (res.ok) {
         setSelectedBookId((id) => (id === bookId ? null : id));
+        setEditingBookId((id) => (id === bookId ? null : id));
         await load();
       }
     } catch (err) {
       console.error(err);
+    }
+  };
+
+  const startEditingBook = (book: ReadingListBook, categoryId: string) => {
+    setEditingBookId(book.id);
+    setEditTitle(book.title);
+    setEditUrl(book.url || "");
+    setEditCategoryId(categoryId);
+  };
+
+  const cancelEditingBook = () => {
+    setEditingBookId(null);
+    setEditSaving(false);
+  };
+
+  const handleUpdateBook = async () => {
+    if (!editingBookId) return;
+    setEditSaving(true);
+    try {
+      const res = await fetch("/api/reading-list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "updateBook",
+          bookId: editingBookId,
+          title: editTitle.trim(),
+          url: editUrl.trim(),
+          categoryId: editCategoryId || undefined,
+        }),
+      });
+      const json = await res.json().catch(() => ({}));
+      if (res.ok && json.success) {
+        setEditingBookId(null);
+        await load();
+      } else if (!res.ok && json.error) {
+        setError(json.error);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setEditSaving(false);
     }
   };
 
@@ -194,6 +247,7 @@ export default function ReadingListPage() {
                   onClick={() => {
                     setIsEditMode((e) => !e);
                     setSelectedBookId(null);
+                    setEditingBookId(null);
                   }}
                   className="text-sm text-gray-600 hover:text-gray-800 hover:underline cursor-pointer"
                 >
@@ -354,34 +408,91 @@ export default function ReadingListPage() {
                 <ul className="space-y-1 list-none pl-0">
                   {category.books.map((book) => {
                     const selected = session && isEditMode && selectedBookId === book.id;
+                    const editing = session && isEditMode && editingBookId === book.id;
                     const nextFull = data.next.length >= MAX_NEXT;
                     return (
                       <li
                         key={book.id}
-                        onClick={() => session && isEditMode && setSelectedBookId((id) => (id === book.id ? null : book.id))}
-                        className={`flex items-center gap-2 flex-wrap py-1.5 px-2 -mx-2 rounded ${session && isEditMode ? "cursor-pointer hover:bg-gray-100" : ""} ${selected ? "bg-gray-200" : ""}`}
+                        onClick={() => session && isEditMode && !editing && setSelectedBookId((id) => (id === book.id ? null : book.id))}
+                        className={`flex items-center gap-2 flex-wrap py-1.5 px-2 -mx-2 rounded ${session && isEditMode && !editing ? "cursor-pointer hover:bg-gray-100" : ""} ${selected ? "bg-gray-200" : ""}`}
                       >
-                        <BookTitle book={book} isEditMode={!!(session && isEditMode)} />
-                        {session && isEditMode && selected && (
-                          <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
-                            <button
-                              type="button"
-                              onClick={() => handleDeleteBook(book.id)}
-                              title="Delete book"
-                              className={iconButtonClass()}
+                        {editing ? (
+                          <div className="flex flex-col gap-2 w-full py-2" onClick={(e) => e.stopPropagation()}>
+                            <input
+                              type="text"
+                              value={editTitle}
+                              onChange={(e) => setEditTitle(e.target.value)}
+                              placeholder="Title"
+                              className="w-full max-w-md px-2 py-1.5 border border-gray-300 rounded text-sm"
+                            />
+                            <input
+                              type="url"
+                              value={editUrl}
+                              onChange={(e) => setEditUrl(e.target.value)}
+                              placeholder="URL (optional)"
+                              className="w-full max-w-md px-2 py-1.5 border border-gray-300 rounded text-sm"
+                            />
+                            <select
+                              value={editCategoryId}
+                              onChange={(e) => setEditCategoryId(e.target.value)}
+                              className="w-full max-w-md px-2 py-1.5 border border-gray-300 rounded text-sm"
                             >
-                              <IconX />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={() => handleAddToNext(book.id)}
-                              disabled={nextFull}
-                              title={nextFull ? `Next list is full (max ${MAX_NEXT})` : "Add to Next"}
-                              className="px-2 py-1 text-xs rounded text-gray-600 hover:text-gray-900 hover:bg-gray-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
-                            >
-                              Next
-                            </button>
+                              {data.categories.map((c) => (
+                                <option key={c.id} value={c.id}>{c.name}</option>
+                              ))}
+                            </select>
+                            <div className="flex items-center gap-2">
+                              <button
+                                type="button"
+                                onClick={handleUpdateBook}
+                                disabled={editSaving || !editTitle.trim()}
+                                className="px-3 py-1.5 text-sm rounded bg-gray-800 text-white hover:bg-gray-900 disabled:opacity-50 disabled:cursor-not-allowed"
+                              >
+                                {editSaving ? "Saving…" : "Save"}
+                              </button>
+                              <button
+                                type="button"
+                                onClick={cancelEditingBook}
+                                disabled={editSaving}
+                                className="px-3 py-1.5 text-sm rounded border border-gray-300 text-gray-700 hover:bg-gray-100 disabled:opacity-50"
+                              >
+                                Cancel
+                              </button>
+                            </div>
                           </div>
+                        ) : (
+                          <>
+                            <BookTitle book={book} isEditMode={!!(session && isEditMode)} />
+                            {session && isEditMode && selected && (
+                              <div className="flex items-center gap-1" onClick={(e) => e.stopPropagation()}>
+                                <button
+                                  type="button"
+                                  onClick={() => startEditingBook(book, category.id)}
+                                  title="Edit title, URL, or category"
+                                  className={iconButtonClass()}
+                                >
+                                  <IconPencil />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteBook(book.id)}
+                                  title="Delete book"
+                                  className={iconButtonClass()}
+                                >
+                                  <IconX />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleAddToNext(book.id)}
+                                  disabled={nextFull}
+                                  title={nextFull ? `Next list is full (max ${MAX_NEXT})` : "Add to Next"}
+                                  className="px-2 py-1 text-xs rounded text-gray-600 hover:text-gray-900 hover:bg-gray-200 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed"
+                                >
+                                  Next
+                                </button>
+                              </div>
+                            )}
+                          </>
                         )}
                       </li>
                     );

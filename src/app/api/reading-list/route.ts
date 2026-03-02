@@ -228,6 +228,53 @@ export async function POST(request: NextRequest) {
         return NextResponse.json({ success: true });
       }
 
+      case "updateBook": {
+        const { bookId, title, url, categoryId } = body;
+        if (!bookId) {
+          return NextResponse.json(
+            { error: "bookId is required" },
+            { status: 400 }
+          );
+        }
+        const found = findBookById(data, bookId);
+        if (!found) {
+          return NextResponse.json(
+            { error: "Book not found" },
+            { status: 404 }
+          );
+        }
+        const { book, categoryId: currentCategoryId } = found;
+
+        if (title !== undefined) book.title = String(title).trim();
+        if (url !== undefined) book.url = String(url).trim();
+
+        if (categoryId !== undefined && categoryId !== currentCategoryId) {
+          const targetCat = data.categories.find((c) => c.id === categoryId);
+          if (!targetCat) {
+            return NextResponse.json(
+              { error: "Category not found" },
+              { status: 404 }
+            );
+          }
+          const currentCat = data.categories.find(
+            (c) => c.id === currentCategoryId
+          );
+          if (currentCat) {
+            currentCat.books = (currentCat.books || []).filter(
+              (b) => b.id !== bookId
+            );
+          }
+          targetCat.books = targetCat.books || [];
+          targetCat.books.push(book);
+        }
+
+        await writeReadingListData(
+          data,
+          `Update book: ${book.title}`
+        );
+        return NextResponse.json({ success: true });
+      }
+
       default:
         return NextResponse.json({ error: "Invalid action" }, { status: 400 });
     }
